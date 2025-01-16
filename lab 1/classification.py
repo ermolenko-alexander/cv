@@ -6,15 +6,16 @@ from pathlib import Path
 from tqdm import tqdm
 from typing import Dict, List
 
-RED_LOWER1 = np.array([0, 100, 100])
-RED_UPPER1 = np.array([8, 255, 255])
-RED_LOWER2 = np.array([165, 100, 100])
+# Оптимизированные диапазоны HSV
+RED_LOWER1 = np.array([0, 90, 90])
+RED_UPPER1 = np.array([10, 255, 255])
+RED_LOWER2 = np.array([160, 90, 90])
 RED_UPPER2 = np.array([180, 255, 255])
 
-YELLOW_LOWER = np.array([22, 130, 130])
-YELLOW_UPPER = np.array([32, 255, 255])
-GREEN_LOWER = np.array([45, 100, 100])
-GREEN_UPPER = np.array([80, 255, 255])
+YELLOW_LOWER = np.array([20, 120, 120])
+YELLOW_UPPER = np.array([34, 255, 255])
+GREEN_LOWER = np.array([35, 80, 80])
+GREEN_UPPER = np.array([90, 255, 255])
 
 DEFAULT_THRESHOLD_FACTOR = 0.001
 
@@ -193,23 +194,12 @@ def detect_traffic_light_color(image_path: Path, logger: logging.Logger) -> str:
         blur = cv2.GaussianBlur(img, (5, 5), 0)
         hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
-        red_lower1 = np.array([0, 90, 90])
-        red_upper1 = np.array([10, 255, 255])
-        red_lower2 = np.array([160, 90, 90])
-        red_upper2 = np.array([180, 255, 255])
-
-        yellow_lower = np.array([20, 120, 120])
-        yellow_upper = np.array([34, 255, 255])
-
-        green_lower = np.array([35, 80, 80])
-        green_upper = np.array([90, 255, 255])
-
-        red_mask1 = cv2.inRange(hsv, red_lower1, red_upper1)
-        red_mask2 = cv2.inRange(hsv, red_lower2, red_upper2)
+        red_mask1 = cv2.inRange(hsv, RED_LOWER1, RED_UPPER1)
+        red_mask2 = cv2.inRange(hsv, RED_LOWER2, RED_UPPER2)
         red_mask = cv2.add(red_mask1, red_mask2)
 
-        yellow_mask = cv2.inRange(hsv, yellow_lower, yellow_upper)
-        green_mask = cv2.inRange(hsv, green_lower, green_upper)
+        yellow_mask = cv2.inRange(hsv, YELLOW_LOWER, YELLOW_UPPER)
+        green_mask = cv2.inRange(hsv, GREEN_LOWER, GREEN_UPPER)
 
         kernel = np.ones((3, 3), np.uint8)
         for mask in [red_mask, yellow_mask, green_mask]:
